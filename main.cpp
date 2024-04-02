@@ -7,6 +7,11 @@
 #define PALABRA 4   //Una palabra tiene 4 bytes
 #define KB 1024     //Un KB tiene 1204 bytes
 
+#define BLOQUE_SIZE 1 // 1 PALABRA
+#define NUM_BLOQUES 4
+
+#define NUM_VIAS 2
+
 using namespace std;
 
 /*
@@ -31,7 +36,8 @@ int main(int argc, const char* argv[])
 
         string fdirec_ruta = argv[1];
 
-        cache_comp_directa(4, 1, fdirec_ruta);
+        //cache_comp_directa(NUM_BLOQUES, BLOQUE_SIZE, fdirec_ruta);
+        cache_asoc_conjuntos(NUM_BLOQUES, BLOQUE_SIZE, NUM_VIAS, fdirec_ruta);
 
 
     }
