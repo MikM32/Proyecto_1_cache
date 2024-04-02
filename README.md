@@ -1,7 +1,7 @@
 # Proyecto 1 de Arquitectura del Computador. Parte 1.
 
     Integrantes:    Miguel Matute. C.I: 30.733.549
-                    Diego Arias.  C.I: 
+                    Diego Arias.  C.I: 31.540.642
 
     Descripcion:    Simular los tres tipos de cache en c++. recibe como entrada un archivo con una cantidad determinada de direcciones
                     y como salida crea un archivo donde sea vea cada acierto y fallo para cada direccion, ademas de su respectiva etiqueta e indice.
