@@ -36,7 +36,7 @@ int main(int argc, const char* argv[])
 
         string fdirec_ruta = argv[1];
 
-        //cache_comp_directa(NUM_BLOQUES, BLOQUE_SIZE, fdirec_ruta);
+        cache_comp_directa(NUM_BLOQUES, BLOQUE_SIZE, fdirec_ruta);
         cache_asoc_conjuntos(NUM_BLOQUES, BLOQUE_SIZE, NUM_VIAS, fdirec_ruta);
 
 
