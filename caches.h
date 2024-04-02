@@ -1,13 +1,11 @@
 #ifndef CACHES_H_INCLUDED
 #define CACHES_H_INCLUDED
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <cmath>
-#include <fstream>
-#include <fstream>
-#include <vector>
-#include <cmath>
+#include <algorithm>
 #include <list>
 
 using namespace std;
@@ -21,17 +19,17 @@ class CampoCache
     private:
         bool validez = false;
         int etiqueta = 0;
-        //int tiempo = 1000;
+        int tiempo = -1;
     public:
 
 
         //getters
 
-        /*
+        
         int getTiempo()
         {
             return this->tiempo;
-        }*/
+        }
         bool getValidez()
         {
             return this->validez;
@@ -43,11 +41,11 @@ class CampoCache
         }
 
         //setters
-        /*
+        
         void setTiempo(int t)
         {
             this->tiempo = t;
-        }*/
+        }
         void setValidez(bool val)
         {
             this->validez = val;
@@ -56,6 +54,13 @@ class CampoCache
         {
             this->etiqueta = et;
         }
+		
+		void cambiar(bool val, int et, int tmp)
+		{
+			this->setValidez(val);
+			this->setEtiqueta(et);
+			this->setTiempo(tmp);
+		}
 };
 
 #endif // CACHES_H_INCLUDED

@@ -1,6 +1,6 @@
 #include "caches.h"
 
-                                            //tamaño de bloque en palabras
+                                            //tamaÃ±o de bloque en palabras
 void cache_comp_directa(int numBloques, int tamBloque, string fdirec_ruta)
 {
     vector<CampoCache> cache(numBloques);
@@ -38,28 +38,27 @@ void cache_comp_directa(int numBloques, int tamBloque, string fdirec_ruta)
     fdirec.close();
 }
 
-int ultimo_usado(vector<int> tiempos)
-{
-    int indice;
-    int minimo = 1000;
-    for(size_t i=0; i<tiempos.size(); i++)
-    {
-        if(tiempos[i] < minimo)
-        {
-            indice = i;
-            minimo = tiempos[i];
-        }
-    }
 
-    return indice;
+auto menor_tiempo = [](CampoCache  e, CampoCache d) //Funcion comparadora para la funcion min_element
+{
+	return e.getTiempo() < d.getTiempo();
+};
+
+int indice_LRU(vector<CampoCache> conjunto)
+{
+	int indice;
+	auto min_elem = min_element(conjunto.begin(), conjunto.end(), menor_tiempo);
+	
+	indice = distance(conjunto.begin(), min_elem);
+	
+	return indice;
 }
 
 void cache_asoc_conjuntos(int numBloques, int tamBloques, int tamConjuntos, string fdirec_ruta)
 {
     int numConjuntos = numBloques / tamConjuntos;
     vector<vector<CampoCache>> cache(numConjuntos, vector<CampoCache>(tamConjuntos));
-    vector<int> tiempos(tamConjuntos);
-
+	
     int despBloque = log2(tamBloques);
     int direccion;
     int etiqueta;
@@ -71,15 +70,13 @@ void cache_asoc_conjuntos(int numBloques, int tamBloques, int tamConjuntos, stri
     salida.open("salida_asociativa_cojuntos.txt");
     fdirec.open(fdirec_ruta);
 
-
-    CampoCache last;
-    int last_i;
+	int tmp_cont = 0;
     while(fdirec >> direccion)
     {
         etiqueta = direccion >> despBloque;
         indiceConjunto = etiqueta % numConjuntos;
         bool flag_acierto=false;
-
+		
         salida << "| Direccion: "<< direccion << "| Etiqueta: " << etiqueta << "| Indice Conj: " << indiceConjunto;
         for(int i=0; i<tamConjuntos; i++)
         {
@@ -88,8 +85,8 @@ void cache_asoc_conjuntos(int numBloques, int tamBloques, int tamConjuntos, stri
             if(campAct.getEtiqueta() == etiqueta && campAct.getValidez())
             {
                 flag_acierto = true;
-                //last = campAct;
-                //last_i = i;
+				cache[indiceConjunto][i].setTiempo(tmp_cont);
+				
                 break;
             }
         }
@@ -101,29 +98,12 @@ void cache_asoc_conjuntos(int numBloques, int tamBloques, int tamConjuntos, stri
         else
         {
             salida << " -> Fallo\n";
-            if(cache[indiceConjunto][tamConjuntos-1].getValidez()) //esta lleno el conjunto
-            {                                                       // Se usa la tecnica LRU para sustituir las etiquetas
-                //CampoCache aux = last;
-                last.setEtiqueta(etiqueta);
-                cache[indiceConjunto][last_i] = last;
-            }
-            else
-            {
-                int j=0;
-                for(j=0; j<tamConjuntos; j++)                     //Buca el indice del elemento del conjunto que esta vacio
-                {
-                    if(!cache[indiceConjunto][j].getValidez())
-                    {
-                        break;
-                    }
-                }
-
-                cache[indiceConjunto][j].setEtiqueta(etiqueta);
-                cache[indiceConjunto][j].setValidez(true);
-                last = cache[indiceConjunto][j];
-                last_i = j;
-            }
+			int reemplazo_i = indice_LRU(cache[indiceConjunto]);
+			cache[indiceConjunto][reemplazo_i].cambiar(true, etiqueta, tmp_cont);
+			
         }
+		
+	tmp_cont++;
 
     }
 
@@ -131,24 +111,50 @@ void cache_asoc_conjuntos(int numBloques, int tamBloques, int tamConjuntos, stri
     fdirec.close();
 }
 
-//no terminado
+
 void cache_asociativa_compl(int numBloques, int tamBloques, string fdirec_ruta)
 {
     vector<CampoCache> cache(numBloques);
 
     int direccion;
     int etiqueta;
-    int indice; //A pesar de llamarse indice las cache totalmente asociativas no tienen uno, esta variable servira para obtener la posicion de cada elemento
     int despBloque = log2(tamBloques);
 
     ofstream salida;
     ifstream fdirec;
-    salida.open("salida_asociativa_cojuntos.txt");
+    salida.open("salida_completamente_asociativa.txt");
     fdirec.open(fdirec_ruta);
-
+	
+	int tmp_cont = 0;
     while(fdirec >> direccion)
     {
         etiqueta = direccion >> despBloque;
+		bool acierto_flag = false;
+		
+		salida << "Direccion: "<< direccion << " Etiqueta: " << etiqueta << " "; 
+		for(int i=0; i<numBloques; i++)
+		{
+			if(cache[i].getEtiqueta() == etiqueta && cache[i].getValidez())
+			{
+				acierto_flag = true;
+				cache[i].setTiempo(tmp_cont);
+				
+				break;
+			}
+		}
+		
+		if(acierto_flag)
+		{
+			salida << " -> Acierto\n";
+		}
+		else
+		{
+			salida << " -> Fallo\n";
+			int reemplazo_i = indice_LRU(cache);
+			cache[reemplazo_i].cambiar(true, etiqueta, tmp_cont);
+		}
+		
+		tmp_cont++;
     }
 
     fdirec.close();
