@@ -162,6 +162,7 @@ class CacheConjuntos : Cache
 {
     private:
         List<List<LineaCache>*> cache;
+        LineaCache buffer;
         int nVias;
         int tamConjuntos;
 
@@ -198,7 +199,7 @@ class CacheConjuntos : Cache
             int ind = this->cache.getValueAtIndex(indiceConjunto)->search(linea);
             if(ind < 0)
             {
-                if(!this->cache.getValueAtIndex(indiceConjunto)->isEmpty())
+                if(this->cache.getValueAtIndex(indiceConjunto)->getSize() == this->nVias)
                 {
                     this->cache.getValueAtIndex(indiceConjunto)->removeAtFirst();
                 }
@@ -207,12 +208,24 @@ class CacheConjuntos : Cache
             }
             else
             {
+                LineaCache bf  = this->cache.getValueAtIndex(indiceConjunto)->getValueAtIndex(ind);
+                this->cache.getValueAtIndex(indiceConjunto)->removeAtIndex(ind);
+                this->cache.getValueAtIndex(indiceConjunto)->insertAtLast(bf);
                 flag_acierto=true;
             }
 
             return flag_acierto;
 
 
+        }
+
+        void prefetch(int direccion)
+        {
+            int despBloque = log2(this->tamBloques);
+            int etiqueta = direccion >> despBloque;
+
+            this->buffer.etiqueta = etiqueta;
+            this->buffer.validez = true;
         }
 
 };
@@ -267,11 +280,12 @@ class CacheCompAsoc : Cache
                         this->curVias++;
                         this->cache.insertAtLast(linea);
                     }
-
-
                 }
                 else
                 {
+                    LineaCache bf = this->cache.getValueAtIndex(ind);
+                    this->cache.removeAtIndex(ind);
+                    this->cache.insertAtLast(bf);
                     flag_acierto=true;
                 }
             }
